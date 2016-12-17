@@ -1,0 +1,121 @@
+= HTTP - 250 MFA REQUIRED
+:revnumber: draft-wgname-250-mfa-required-01
+:revdate: {docdatetime}
+:source-highlighter: pygments
+:toc: right
+// URIs:
+:uri-rfc2616: https://tools.ietf.org/html/rfc2616
+:uri-rfc2119: https://tools.ietf.org/html/rfc2119
+
+.Status
+This Internet-Draft is a working document of the WORKING GROUP NAME.  Note
+that other groups may also distribute working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any
+time.  It is inappropriate to use Internet-Drafts as reference
+material or to cite them other than as "work in progress."
+
+This Internet-Draft will expire on 30 June 2017.
+
+.Copyright Notice
+
+Copyright (c) 2016-2017 WORKING GROUP NAME and persons identified as document
+authors.  All rights reserved.
+
+.Abstract
+This document specifies the HTTP status code of 250 MFA REQUIRED, a response code
+for use when login or registration succeeds but requires a second factor for the
+completion of the process.
+
+:sectnums:
+
+== Introduction
+This document specifies an additional HTTP {uri-rfc2616}[RFC2616] status code for the
+use of second factor authentication (or multi factor authentication), to improve
+interoperability and avoid confusion when an action was successful, but requires a
+second factor of authentication to happen before completion.
+
+Note that servers cannot be required to support them, so the use of this status code
+is optional. This new code can be safely deployed due to clients treating unkown status
+codes as generic codes in the same class.
+
+
+== Requirements
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described {uri-rfc2119}[RFC2119] when they appear in UPPERCASE.
+If these words are used without being spelled in uppercase then they are to be interpreted with their normal natural
+language meanings, without any normative meaning.
+
+== 250 MFA REQUIRED
+The 250 status code indicates that an action was successful but requires additional
+factors to be completed before the action is fully completed.
+
+=== Typical Use
+Typically, this status code will be used in a setting where authentication requires a
+second factor to be completed during an action. The response of the request for a second
+factor SHOULD contain information about the factors that can be used.  In the example of
+a JSON endpoint requesting a second factor, a JSON notated response SHOULD appear as:
+
+[source,json]
+----
+{
+  "action": "second_factor_required",
+  "factors": [{
+    "type": "sms",
+    "hint": "xxx-xxx-1234"
+  },{
+    "type": "totp"
+  }]
+}
+----
+
+=== Example Flow
+This example describes the behavior when a user makes a request for logging into an
+application.
+
+[source,html]
+----
+POST /login HTTP/1.1
+Host: example.com
+Content-Type: application/json
+Accept: application/json
+
+{
+	"login":"example_user",
+	"password": "taWtQVqTe3yszfFoYENemWRVnhjMBwoR"
+}
+----
+
+When receiving a request for logging in, and the user has multi factor autnentication enabled
+and at least one factor is specified, the server SHOULD issue a response such as the following
+
+
+[source,html]
+----
+    HTTP/1.1 250 MFA REQUIRED
+    Content-Type: application/json
+
+    {
+      "action": "second_factor_required",
+      "factors": [{
+        "type": "sms",
+        "hint": "xxx-xxx-7890"
+      }]
+    }
+----
+
+When a response of this is shown, it represents that a users credentials have been accepted
+as valid and should be allowed to log in once their second factor is validated.  In the case
+above, a single factor is allowed to be used, a SMS/Call SHOULD be sent to the number and the
+hint should be displayed to the user so they know where to find the challenge code.
+
+Once a user receives the challenge code, it is submitted and login can continue as normal.
+
+== References
+[width="90%",frame="topbot",options="header,footer"]
+|=======
+|[RFC2119] | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels",
+BCP 14, {uri-rfc2616}[RFC 2119], March 1997.
+|=======
