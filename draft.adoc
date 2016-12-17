@@ -119,3 +119,11 @@ Once a user receives the challenge code, it is submitted and login can continue 
 |[RFC2119] | Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels",
 BCP 14, {uri-rfc2616}[RFC 2119], March 1997.
 |=======
+
+=== Why 250?
+Currently, 250 is not used as a status code. We wanted to choose a status code in the 2xx
+class since it was a successful request, but required additional steps to log in.  When
+doing the research on this, we looked at what would make sense and believe 250 is the only
+option here as Factored Authentication (or FA) is a hexadecimal code that can be converted
+250 in decimal when splitting the letters out.  F being 15x16^1=240 and A being 10*16^0=10.
+Add them together and you get 250.
